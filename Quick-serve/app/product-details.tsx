@@ -1,51 +1,78 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowLeft, ShoppingBag } from 'lucide-react-native';
 import { useCart } from './context/CartContext';
+import { ArrowLeft, ShoppingBag, Plus, Minus } from 'lucide-react-native';
 
 export default function ProductDetails() {
-  const item = useLocalSearchParams();
-    const router = useRouter();
-      const { addToCart } = useCart();
-        const [added, setAdded] = useState(false);
+  const params = useLocalSearchParams();
+  const router = useRouter();
+  const { addToCart } = useCart();
+  const [unit, setUnit] = useState('حبة'); 
+  const [qty, setQty] = useState(1);
 
-          const handleAdd = () => {
-              addToCart(item);
-                  setAdded(true);
-                      setTimeout(() => setAdded(false), 2000);
-                        };
+  const units = ['حبة', 'كيلو (Kg)', 'غرام (g)', 'لتر (L)'];
 
-                          return (
-                              <View style={styles.container}>
-                                    <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-                                            <ArrowLeft size={24} color="#000" />
-                                                  </TouchableOpacity>
-                                                        <Image source={{ uri: item.img as string }} style={styles.image} />
-                                                              <View style={styles.content}>
-                                                                      <Text style={styles.name}>{item.name}</Text>
-                                                                              <Text style={styles.price}>{item.price}</Text>
-                                                                                      <Text style={styles.desc}>مذاق رائع وجودة عالية. اطلب الآن واستمتع بالوجبة!</Text>
-                                                                                            </View>
-                                                                                                  <View style={styles.footer}>
-                                                                                                          <TouchableOpacity style={[styles.btn, added && {backgroundColor: '#4BB543'}]} onPress={handleAdd}>
-                                                                                                                    <ShoppingBag size={20} color="#fff" />
-                                                                                                                              <Text style={styles.btnText}>{added ? 'تمت الإضافة ✓' : 'إضافة للسلة'}</Text>
-                                                                                                                                      </TouchableOpacity>
-                                                                                                                                            </View>
-                                                                                                                                                </View>
-                                                                                                                                                  );
-                                                                                                                                                  }
+  const handleAddToCart = () => {
+    addToCart({
+      id: params.id,
+      name: params.name,
+      price: params.price,
+      img: params.img,
+      unit: unit,
+      quantity: qty
+    });
+    router.replace("/(tabs)"); 
+  };
 
-                                                                                                                                                  const styles = StyleSheet.create({
-                                                                                                                                                    container: { flex: 1, backgroundColor: '#fff' },
-                                                                                                                                                      backBtn: { position: 'absolute', top: 50, left: 20, zIndex: 10, backgroundColor: '#fff', padding: 10, borderRadius: 12 },
-                                                                                                                                                        image: { width: '100%', height: 350 },
-                                                                                                                                                          content: { padding: 25, borderTopLeftRadius: 30, borderTopRightRadius: 30, marginTop: -30, backgroundColor: '#fff' },
-                                                                                                                                                            name: { fontSize: 24, fontWeight: 'bold' },
-                                                                                                                                                              price: { fontSize: 22, color: '#FF5733', fontWeight: 'bold', marginVertical: 10 },
-                                                                                                                                                                desc: { color: '#666', lineHeight: 22, textAlign: 'right' },
-                                                                                                                                                                  footer: { padding: 20, borderTopWidth: 1, borderColor: '#eee' },
-                                                                                                                                                                    btn: { backgroundColor: '#FF5733', padding: 18, borderRadius: 20, flexDirection: 'row', justifyContent: 'center', gap: 10 },
-                                                                                                                                                                      btnText: { color: '#fff', fontWeight: 'bold', fontSize: 18 }
-                                                                                                                                                                      });
+  return (
+    <ScrollView style={styles.container}>
+      <Image source={{ uri: params.img as string }} style={styles.headerImg} />
+      <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}><ArrowLeft color="#fff" /></TouchableOpacity>
+
+      <View style={styles.content}>
+        <Text style={styles.title}>{params.name}</Text>
+        <Text style={styles.price}>{params.price}</Text>
+
+        <Text style={styles.sectionTitle}>اختر الوحدة:</Text>
+        <View style={styles.unitGrid}>
+          {units.map((u) => (
+            <TouchableOpacity key={u} style={[styles.unitBtn, unit === u && styles.unitActive]} onPress={() => setUnit(u)}>
+              <Text style={[styles.unitText, unit === u && styles.unitTextActive]}>{u}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View style={styles.qtyRow}>
+          <TouchableOpacity onPress={() => setQty(Math.max(1, qty - 1))} style={styles.qtyBtn}><Minus size={20} /></TouchableOpacity>
+          <Text style={styles.qtyValue}>{qty}</Text>
+          <TouchableOpacity onPress={() => setQty(qty + 1)} style={styles.qtyBtn}><Plus size={20} /></TouchableOpacity>
+        </View>
+
+        <TouchableOpacity style={styles.addBtn} onPress={handleAddToCart}>
+          <ShoppingBag color="#fff" />
+          <Text style={styles.addBtnText}>إضافة {qty} {unit} للسلة</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#fff' },
+  headerImg: { width: '100%', height: 300 },
+  backBtn: { position: 'absolute', top: 50, left: 20, backgroundColor: 'rgba(0,0,0,0.3)', padding: 10, borderRadius: 12 },
+  content: { padding: 25, marginTop: -30, backgroundColor: '#fff', borderTopLeftRadius: 35, borderTopRightRadius: 35 },
+  title: { fontSize: 24, fontWeight: 'bold', textAlign: 'right' },
+  price: { fontSize: 20, color: '#4CAF50', fontWeight: 'bold', textAlign: 'right', marginVertical: 10 },
+  sectionTitle: { fontSize: 16, fontWeight: 'bold', textAlign: 'right', marginTop: 10 },
+  unitGrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 10, marginTop: 10 },
+  unitBtn: { padding: 10, borderRadius: 12, borderWidth: 1, borderColor: '#eee' },
+  unitActive: { backgroundColor: '#4CAF50', borderColor: '#4CAF50' },
+  unitTextActive: { color: '#fff' },
+  qtyRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 30, gap: 20 },
+  qtyBtn: { backgroundColor: '#f0f0f0', padding: 10, borderRadius: 10 },
+  qtyValue: { fontSize: 20, fontWeight: 'bold' },
+  addBtn: { backgroundColor: '#4CAF50', flexDirection: 'row', justifyContent: 'center', padding: 18, borderRadius: 20, marginTop: 30, gap: 10 },
+  addBtnText: { color: '#fff', fontSize: 18, fontWeight: 'bold' }
+});
