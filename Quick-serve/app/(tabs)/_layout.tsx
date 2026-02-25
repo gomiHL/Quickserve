@@ -1,16 +1,44 @@
+import React from 'react';
 import { Tabs } from 'expo-router';
-import { Home, ClipboardList, User } from 'lucide-react-native';
+import { Home, ShoppingBasket, ShoppingCart, UserCog } from 'lucide-react-native';
 
-export default function TabsLayout() {
+export default function TabLayout() {
   return (
-      <Tabs screenOptions={{ 
-            headerShown: false,
-                  tabBarActiveTintColor: '#FF5733',
-                        tabBarStyle: { height: 60, paddingBottom: 10 } 
-                            }}>
-                                  <Tabs.Screen name="index" options={{ title: 'الرئيسية', tabBarIcon: ({ color }) => <Home size={24} color={color} /> }} />
-                                        <Tabs.Screen name="orders" options={{ title: 'طلباتي', tabBarIcon: ({ color }) => <ClipboardList size={24} color={color} /> }} />
-                                              <Tabs.Screen name="profile" options={{ title: 'حسابي', tabBarIcon: ({ color }) => <User size={24} color={color} /> }} />
-                                                  </Tabs>
-                                                    );
-                                                    }
+    <Tabs screenOptions={{
+      tabBarActiveTintColor: '#FF7043',
+      tabBarInactiveTintColor: '#888',
+      tabBarLabelStyle: { fontSize: 12, fontWeight: 'bold' },
+      tabBarStyle: { height: 65, paddingBottom: 10 },
+      headerShown: false,
+    }}>
+      <Tabs.Screen
+        name="index"
+        options={{
+          tabBarLabel: 'الرئيسية',
+          tabBarIcon: ({ color }) => <Home size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="market"
+        options={{
+          tabBarLabel: 'السوق',
+          tabBarIcon: ({ color }) => <ShoppingBasket size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="cart"
+        options={{
+          tabBarLabel: 'السلة',
+          tabBarIcon: ({ color }) => <ShoppingCart size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          tabBarLabel: 'حسابي',
+          tabBarIcon: ({ color }) => <UserCog size={24} color={color} />,
+        }}
+      />
+    </Tabs>
+  );
+}

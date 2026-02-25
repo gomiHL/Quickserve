@@ -6,14 +6,14 @@ import * as Notifications from 'expo-notifications';
 
 const GEOFENCING_TASK = 'MOBILE_ORDER_GEOFENCE';
 
-// الحل النهائي والساحق لمشكل TypeScript 🚀
+// إعدادات التنبيهات
 Notifications.setNotificationHandler({
   handleNotification: async () => {
     return {
       shouldShowAlert: true,
       shouldPlaySound: true,
       shouldSetBadge: false,
-    } as any; // هادي كتسكت TypeScript بصفة نهائية
+    } as any;
   },
 });
 
@@ -39,10 +39,18 @@ export default function RootLayout() {
   return (
     <CartProvider>
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="cart" options={{ presentation: 'modal' }} />
+        {/* صفحة الترحيب (البداية) */}
+        <Stack.Screen name="index" /> 
+        
+        {/* مجلد التابات (اللي فيه 4 ديال الأزرار) */}
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        
+        {/* هاد الروابط غايبقاو للملفات اللي برا باش ما يطلعش ليك Error */}
         <Stack.Screen name="product-details" />
+        
+        {/* السلة كمودال (اختياري) */}
+        <Stack.Screen name="cart" options={{ presentation: 'modal' }} />
       </Stack>
     </CartProvider>
   );
-}
+} 
