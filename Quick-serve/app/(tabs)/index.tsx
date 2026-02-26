@@ -1,98 +1,121 @@
 import React from 'react';
-import { View, Text, ScrollView, TextInput, Image, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
-import { Search, MapPin, Bell, ChevronLeft, Clock, Star } from 'lucide-react-native';
+import { View, Text, ScrollView, TextInput, Image, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { Search, MapPin, Bell, Star, Clock, Filter, RotateCcw, Plus } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+// ✅ تأكد أن المسار هو ../context/CartContext لأن index.tsx كاين فـ app/(tabs)
+import { useCart } from '../context/CartContext'; 
 
 const THEME_COLOR = '#FF7043';
-
-// 1. التصنيفات المطلوبة
-const MAIN_CATEGORIES = [
-  { id: '1', name: 'أكل', icon: '🍔', color: '#FFF2F0' },
-  { id: '2', name: 'مشروبات', icon: '🥤', color: '#F0F9FF' },
-  { id: '3', name: 'صيدلة', icon: '💊', color: '#F0FFF4' },
-  { id: '4', name: 'بقالة', icon: '🛒', color: '#FFFBF0' },
-  { id: '5', name: 'مخبزة', icon: '🍞', color: '#FDF2F8' },
-  { id: '6', name: 'باتسري', icon: '🍰', color: '#FFF5F0' },
-  { id: '7', name: 'تجميل', icon: '💄', color: '#F5F3FF' },
-];
-
-// 2. محلات "اطلب مجددا"
-const RECENT_SHOPS = [
-  { id: '1', name: 'سناك مبروكة', image: 'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?q=80&w=200' },
-  { id: '2', name: 'مخبزة تيفلت', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=200' },
-  { id: '3', name: 'صيدلية الأمل', image: 'https://images.unsplash.com/photo-1586015555751-63bb77f4322a?q=80&w=200' },
-];
-
-// 3. منتوجات "وجبات الإفطار"
-const BREAKFAST_ITEMS = [
-  { id: '1', name: 'حرشة مغربية', price: '12 DH', image: 'https://images.unsplash.com/photo-1599908608021-b5527655bc61?q=80&w=300' },
-  { id: '2', name: 'مسمن بالعسل', price: '15 DH', image: 'https://images.unsplash.com/photo-1626354313200-a63690623594?q=80&w=300' },
-  { id: '3', name: 'أومليت كلاسيك', price: '20 DH', image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?q=80&w=300' },
-];
+const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
+  const router = useRouter();
+  const { addToCart } = useCart() as any;
+
+  const BEST_SELLERS = [
+    { id: '101', name: 'طاكوس ميكست', price: '35 DH', img: 'https://images.unsplash.com/photo-1582234372483-421741573385?q=80&w=300' },
+    { id: '102', name: 'برغر كلاسيك', price: '25 DH', img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=300' }
+  ];
+
+  const CATEGORIES = [
+    { n: 'أكل', i: '🍔' }, { n: 'مشروبات', i: '🥤' }, { n: 'صيدلة', i: '💊' }, { n: 'بقالة', i: '🛒' },
+    { n: 'مخبزة', i: '🍞' }, { n: 'تجميل', i: '💄' }, { n: 'باتسري', i: '🍰' }, { n: 'ماركت', i: '⚡' }
+  ];
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       
-      {/* Header */}
+      {/* --- Header --- */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.iconCircle}><Bell size={22} color="#333" /></TouchableOpacity>
+        <TouchableOpacity style={styles.iconCircle}>
+          <Bell size={22} color="#333" />
+        </TouchableOpacity>
         <TouchableOpacity style={styles.locationContainer}>
           <Text style={styles.locationText}>تيفلت، حي الأندلس</Text>
           <MapPin size={18} color={THEME_COLOR} />
         </TouchableOpacity>
       </View>
 
-      {/* Search Bar */}
+      {/* --- Search & Filter --- */}
       <View style={styles.searchSection}>
+        <TouchableOpacity style={styles.filterBtn}>
+          <Filter size={20} color="#fff" />
+        </TouchableOpacity>
         <View style={styles.searchBar}>
           <Search size={20} color="#999" />
-          <TextInput placeholder="قلب على اللي بغيتي..." style={styles.searchInput} textAlign="right" />
+          <TextInput 
+            placeholder="قلب على اللي بغيتي..." 
+            style={styles.searchInput} 
+            textAlign="right" 
+          />
         </View>
       </View>
 
-      {/* --- السيكشن 1: التصنيفات (Grid) --- */}
-      <View style={styles.gridContainer}>
-        {MAIN_CATEGORIES.map((cat) => (
-          <TouchableOpacity key={cat.id} style={styles.gridItem}>
-            <View style={[styles.catIconCircle, { backgroundColor: cat.color }]}>
-              <Text style={{ fontSize: 26 }}>{cat.icon}</Text>
-            </View>
-            <Text style={styles.gridText}>{cat.name}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* --- السيكشن 2: اطلب مجدداً (أفقي) --- */}
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>اطلب مجدداً</Text>
-      </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalList}>
-        {RECENT_SHOPS.map((shop) => (
-          <TouchableOpacity key={shop.id} style={styles.reorderCard}>
-            <Image source={{ uri: shop.image }} style={styles.reorderImg} />
-            <View style={styles.reorderOverlay}>
-              <Text style={styles.reorderName}>{shop.name}</Text>
-            </View>
-          </TouchableOpacity>
-        ))}
+      {/* --- Banners --- */}
+      <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}>
+        <View style={styles.bannerCard}>
+          <Image source={{ uri: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=600' }} style={styles.bannerImg} />
+          <View style={styles.bannerOverlay}>
+            <Text style={styles.bannerTitle}>توصيل فابور اليوم! 🛵</Text>
+          </View>
+        </View>
       </ScrollView>
 
-      {/* --- السيكشن 3: وجبات إفطار (أفقي مع عرض الكل) --- */}
+      {/* --- الأصناف --- */}
+      <View style={styles.gridContainer}>
+        {CATEGORIES.map((cat, i) => (
+          <TouchableOpacity key={i} style={styles.gridItem}>
+            <View style={[styles.catIconCircle, { backgroundColor: '#FFF2F0' }]}>
+              <Text style={{ fontSize: 22 }}>{cat.i}</Text>
+            </View>
+            <Text style={styles.gridText}>{cat.n}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* --- الأكثر مبيعاً 🔥 --- */}
       <View style={styles.sectionHeader}>
         <TouchableOpacity><Text style={{ color: THEME_COLOR, fontWeight: 'bold' }}>عرض الكل</Text></TouchableOpacity>
-        <Text style={styles.sectionTitle}>وجبات إفطار</Text>
+        <Text style={styles.sectionTitle}>الأكثر مبيعاً 🔥</Text>
       </View>
+
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalList}>
-        {BREAKFAST_ITEMS.map((item) => (
-          <TouchableOpacity key={item.id} style={styles.breakfastCard}>
-            <Image source={{ uri: item.image }} style={styles.breakfastImg} />
-            <View style={styles.breakfastInfo}>
-              <Text style={styles.breakfastName}>{item.name}</Text>
-              <Text style={styles.breakfastPrice}>{item.price}</Text>
-            </View>
-          </TouchableOpacity>
+        {BEST_SELLERS.map((item) => (
+          <View key={item.id} style={styles.bestSellerCard}>
+            <TouchableOpacity 
+              onPress={() => router.push({ pathname: "/product-details", params: item })}
+            >
+              <Image source={{ uri: item.img }} style={styles.bestImg} />
+            </TouchableOpacity>
+
+            {/* ✅ الزر اللي بغيتي: إضافة مباشرة للسلة */}
+            <TouchableOpacity 
+              style={styles.quickAddBtn}
+              onPress={() => addToCart({ ...item, quantity: 1 })}
+            >
+              <Plus size={20} color="#fff" />
+            </TouchableOpacity>
+
+            <Text style={styles.bestName}>{item.name}</Text>
+            <Text style={styles.bestPrice}>{item.price}</Text>
+          </View>
         ))}
       </ScrollView>
+
+      {/* --- محلات قريبة --- */}
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>محلات قريبة منك 📍</Text>
+      </View>
+      <TouchableOpacity style={styles.nearCard}>
+        <View style={styles.nearInfo}>
+          <Text style={styles.nearName}>سناك مبروكة</Text>
+          <View style={styles.nearTags}>
+            <Text style={styles.nearText}><Star size={12} color="#FFD700" fill="#FFD700"/> 4.8</Text>
+            <Text style={styles.nearText}><Clock size={12} color="#666"/> 15 دقيقة</Text>
+          </View>
+        </View>
+        <Image source={{ uri: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=200' }} style={styles.nearImg} />
+      </TouchableOpacity>
 
       <View style={{ height: 100 }} />
     </ScrollView>
@@ -103,32 +126,46 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   header: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 50, alignItems: 'center' },
   locationContainer: { flexDirection: 'row', alignItems: 'center' },
-  locationText: { marginRight: 5, fontSize: 14, fontWeight: 'bold', color: '#333' },
+  locationText: { marginRight: 5, fontSize: 14, fontWeight: 'bold' },
   iconCircle: { backgroundColor: '#F5F5F5', padding: 10, borderRadius: 15 },
-  searchSection: { padding: 20 },
-  searchBar: { flexDirection: 'row-reverse', backgroundColor: '#F2F2F2', padding: 12, borderRadius: 18, alignItems: 'center' },
-  searchInput: { flex: 1, marginRight: 10, fontSize: 16 },
-  
-  // Grid التصنيفات
-  gridContainer: { flexDirection: 'row-reverse', flexWrap: 'wrap', paddingHorizontal: 10, justifyContent: 'center' },
-  gridItem: { width: '23%', alignItems: 'center', marginBottom: 20 },
-  catIconCircle: { width: 65, height: 65, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
-  gridText: { fontSize: 13, fontWeight: 'bold', color: '#444' },
-
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, marginTop: 10, alignItems: 'center' },
+  searchSection: { padding: 20, flexDirection: 'row', gap: 10 },
+  searchBar: { flex: 1, flexDirection: 'row-reverse', backgroundColor: '#F2F2F2', padding: 12, borderRadius: 18, alignItems: 'center' },
+  searchInput: { flex: 1, marginRight: 10 },
+  filterBtn: { backgroundColor: THEME_COLOR, padding: 12, borderRadius: 18, justifyContent: 'center', alignItems: 'center' },
+  bannerCard: { width: width - 40, height: 160, marginLeft: 20, borderRadius: 25, overflow: 'hidden' },
+  bannerImg: { width: '100%', height: '100%' },
+  bannerOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', padding: 20 },
+  bannerTitle: { color: '#fff', fontSize: 22, fontWeight: 'bold', textAlign: 'right' },
+  gridContainer: { flexDirection: 'row-reverse', flexWrap: 'wrap', marginTop: 20, paddingHorizontal: 10 },
+  gridItem: { width: '25%', alignItems: 'center', marginBottom: 15 },
+  catIconCircle: { width: 60, height: 60, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginBottom: 5 },
+  gridText: { fontSize: 12, fontWeight: 'bold', color: '#333' },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, marginTop: 20, alignItems: 'center' },
   sectionTitle: { fontSize: 18, fontWeight: '800', color: '#222' },
-
-  // سيكشن اطلب مجددا
   horizontalList: { paddingLeft: 20, marginTop: 15 },
-  reorderCard: { width: 140, height: 90, marginRight: 15, borderRadius: 15, overflow: 'hidden' },
-  reorderImg: { width: '100%', height: '100%' },
-  reorderOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', alignItems: 'center' },
-  reorderName: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
-
-  // سيكشن وجبات الإفطار
-  breakfastCard: { width: 180, marginRight: 15, backgroundColor: '#fff', borderRadius: 20, overflow: 'hidden', borderWidth: 1, borderColor: '#EEE' },
-  breakfastImg: { width: '100%', height: 120 },
-  breakfastInfo: { padding: 12, alignItems: 'flex-end' },
-  breakfastName: { fontWeight: 'bold', fontSize: 15 },
-  breakfastPrice: { color: THEME_COLOR, fontWeight: '800', marginTop: 4 },
+  bestSellerCard: { width: 150, marginRight: 15, position: 'relative' },
+  bestImg: { width: 150, height: 150, borderRadius: 20 },
+  quickAddBtn: { 
+    position: 'absolute', 
+    top: 10, 
+    left: 10, 
+    backgroundColor: THEME_COLOR, 
+    width: 36, 
+    height: 36, 
+    borderRadius: 12, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 5
+  },
+  bestName: { textAlign: 'right', fontWeight: 'bold', marginTop: 8 },
+  bestPrice: { textAlign: 'right', color: THEME_COLOR, fontWeight: 'bold' },
+  nearCard: { marginHorizontal: 20, marginTop: 15, flexDirection: 'row', backgroundColor: '#F9F9F9', borderRadius: 20, padding: 12, alignItems: 'center' },
+  nearImg: { width: 80, height: 80, borderRadius: 15 },
+  nearInfo: { flex: 1, paddingRight: 15, alignItems: 'flex-end' },
+  nearName: { fontSize: 16, fontWeight: 'bold' },
+  nearTags: { flexDirection: 'row-reverse', gap: 10, marginTop: 5 },
+  nearText: { fontSize: 12, color: '#666', flexDirection: 'row', alignItems: 'center' }
 });
